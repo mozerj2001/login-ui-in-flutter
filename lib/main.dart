@@ -48,62 +48,7 @@ class MyApp extends StatelessWidget {
       navigatorObservers: GetIt.I<List<NavigatorObserver>>(),
       //DO NOT MODIFY
       debugShowCheckedModeBanner: false,
-      home: MyLoginPage(),
-    );
-  }
-}
-
-class MyLoginPage extends StatelessWidget {
-  final _key = GlobalKey<FormState>();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _loginPrompt(),
-    );
-  }
-
-  Widget _loginPrompt() {
-    return Form(
-        key: _key,
-        child: Center(
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          _emailField(),
-          _passwordField(),
-          _loginButton(),
-        ])));
-  }
-
-  Widget _emailField() {
-    return TextFormField(
-      validator: (value) => null,
-      obscureText: false,
-      decoration: InputDecoration(
-        icon: Icon(Icons.person),
-        hintText: 'EMAIL',
-      ),
-    );
-  }
-
-  Widget _passwordField() {
-    return TextFormField(
-      validator: (value) => null,
-      obscureText: true,
-      decoration: InputDecoration(
-        icon: Icon(Icons.security),
-        hintText: 'PWD',
-      ),
-    );
-  }
-
-  Widget _loginButton() {
-    return Padding(
-      padding: const EdgeInsets.all(25.0),
-      child: ElevatedButton(
-        onPressed: () {},
-        child: Text('LOGIN'),
-      ),
+      home: LoginPageBloc(),
     );
   }
 }
