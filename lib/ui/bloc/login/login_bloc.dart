@@ -22,14 +22,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Dio dio = GetIt.I<Dio>();
 
   void _onLoginSubmit(LoginSubmitEvent event, Emitter<LoginState> emit) async {
-    var data = {'email': event.email, 'password': event.password};
+    final Map data = {'email': event.email, 'password': event.password};
 
     emit(LoginLoading());
     try {
       Response resp = await dio.post('/login', data: data);
       final body = resp.data;
+      print(resp.toString());
 
-      if (resp.statusCode == 200) {
+      if (resp.statusCode == 200 || resp.statusCode == null) {
         // login success? --> (save user token?) + login
         if (event.rememberMe) {
           sp.setString("user", body["token"]);
@@ -43,6 +44,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       if (e is DioException) {
         final body = e.response?.data;
         emit(LoginError(body['message']));
+      } else {
+        print("UNKNOWN DIO ERROR");
       }
     }
   }

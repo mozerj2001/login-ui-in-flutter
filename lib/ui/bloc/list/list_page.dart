@@ -13,7 +13,6 @@ class ListPageBloc extends StatefulWidget {
 }
 
 class _ListPageBlocState extends State<ListPageBloc> {
-
   @override
   void initState() {
     super.initState();
@@ -21,6 +20,11 @@ class _ListPageBlocState extends State<ListPageBloc> {
 
   @override
   Widget build(BuildContext context) {
-    throw UnimplementedError('Page not implemented!');
+    return Scaffold(
+        body: BlocProvider(
+      create: (context) => ListBloc(),
+      child: Text('Logged in, TODO: implement.'),
+    ));
+    // throw UnimplementedError('Page not implemented!');
   }
 }

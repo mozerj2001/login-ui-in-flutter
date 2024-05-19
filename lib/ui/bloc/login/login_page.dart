@@ -34,6 +34,8 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
         listener: (context, state) {
           if (state is LoginError) {
             _showSnackBar(context, state.message);
+          } else if (state is LoginSuccess) {
+            _switchToList();
           }
         },
         child: Form(
@@ -154,6 +156,10 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
   void _showSnackBar(BuildContext context, String message) {
     final snackBar = SnackBar(content: Text(message));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void _switchToList() {
+    Navigator.of(context).pushReplacementNamed('/list');
   }
 
   @override

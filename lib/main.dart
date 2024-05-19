@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_homework/network/data_source_interceptor.dart';
 import 'package:flutter_homework/ui/bloc/login/login_page.dart';
+import 'package:flutter_homework/ui/route_generator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,7 +49,8 @@ class MyApp extends StatelessWidget {
       navigatorObservers: GetIt.I<List<NavigatorObserver>>(),
       //DO NOT MODIFY
       debugShowCheckedModeBanner: false,
-      home: LoginPageBloc(),
+      initialRoute: '/',
+      onGenerateRoute: RouteGenerator.generateRoute,
     );
   }
 }
