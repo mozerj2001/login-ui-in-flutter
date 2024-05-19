@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_homework/network/user_item.dart';
@@ -13,47 +13,48 @@ part 'login_event.dart';
 part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  LoginBloc() : super(LoginForm()) {}
+  LoginBloc() : super(LoginForm()) {
+    on<LoginSubmitEvent>(_onLoginSubmit);
+    on<LoginAutoLoginEvent>(_onAutoLogin);
+  }
 
-  Stream<LoginState> eventToState(LoginEvent event) async* {
-    SharedPreferences sp = GetIt.I<SharedPreferences>();
+  SharedPreferences sp = GetIt.I<SharedPreferences>();
+  Dio dio = GetIt.I<Dio>();
 
-    if (event is LoginSubmitEvent) {
-      // LOGIN button pressed
-      Dio _dio = GetIt.I<Dio>();
-      var data = {"email": event.email, "password": event.password};
+  void _onLoginSubmit(LoginSubmitEvent event, Emitter<LoginState> emit) async {
+    var data = {'email': event.email, 'password': event.password};
 
-      yield LoginLoading(); // start login attempt on network
-      try {
-        Response resp = await _dio.post('/login', data: data);
-        final body = resp.data;
+    emit(LoginLoading());
+    try {
+      Response resp = await dio.post('/login', data: data);
+      final body = resp.data;
 
-        if (resp.statusCode == 200) {
-          // login success? --> (save user?) + login
-          if (event.rememberMe) {
-            // var user = UserItem(event.email, body["token"]);
-            sp.setString("user", body["token"]);
-            await sp.reload();
-          }
-          yield LoginSuccess();
-        } else {
-          yield LoginError(body["message"]);
+      if (resp.statusCode == 200) {
+        // login success? --> (save user token?) + login
+        if (event.rememberMe) {
+          sp.setString("user", body["token"]);
+          await sp.reload();
         }
-      } catch (e) {
-        print(e);
-        yield LoginError("Unsuccessful network exchange!");
-      }
-    } else if (event is LoginAutoLoginEvent) {
-      // try to login with saved credentials
-      bool autologin = sp.containsKey("user");
-      if (autologin) {
-        yield LoginSuccess();
+        emit(LoginSuccess());
       } else {
-        // no login saved --> go to login UI
-        yield LoginForm();
+        emit(LoginError(body["message"]));
+      }
+    } catch (e) {
+      if (e is DioException) {
+        final body = e.response?.data;
+        emit(LoginError(body['message']));
       }
     }
+  }
 
-    throw NotNullableError("eventToState can not return null!!!");
+  void _onAutoLogin(LoginAutoLoginEvent event, Emitter<LoginState> emit) async {
+    // try to login with saved credentials
+    bool autologin = sp.containsKey("user");
+    if (autologin) {
+      emit(LoginSuccess());
+    } else {
+      // no login saved --> go to login UI
+      emit(LoginForm());
+    }
   }
 }

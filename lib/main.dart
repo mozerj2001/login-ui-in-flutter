@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'User List App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
       ),
       //DO NOT MODIFY
       navigatorObservers: GetIt.I<List<NavigatorObserver>>(),

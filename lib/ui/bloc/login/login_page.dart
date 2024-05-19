@@ -30,16 +30,23 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
   }
 
   Widget _loginPrompt() {
-    return Form(
-        key: _key,
-        child: Center(
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          _emailField(),
-          _passwordField(),
-          _loginButton(),
-          _rememberMeCheckBox(),
-        ])));
+    return BlocListener<LoginBloc, LoginState>(
+        listener: (context, state) {
+          if (state is LoginError) {
+            _showSnackBar(context, state.message);
+          }
+        },
+        child: Form(
+            key: _key,
+            child: Center(
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                  _emailField(),
+                  _passwordField(),
+                  _loginButton(),
+                  _rememberMeCheckBox(),
+                ]))));
   }
 
   final TextEditingController _emailController = TextEditingController();
@@ -57,18 +64,21 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
   }
 
   Widget _emailField() {
-    return TextFormField(
-        validator: (value) => null,
-        controller: _emailController,
-        obscureText: false,
-        decoration: InputDecoration(
-          icon: Icon(Icons.person),
-          hintText: 'EMAIL',
-          errorText: _emailErrorText,
-        ),
-        onChanged: (value) {
-          _validateEmail(value);
-        });
+    return BlocBuilder<LoginBloc, LoginState>(builder: (context, state) {
+      return TextFormField(
+          validator: (value) => null,
+          controller: _emailController,
+          obscureText: false,
+          decoration: InputDecoration(
+            icon: Icon(Icons.person),
+            hintText: 'EMAIL',
+            errorText: _emailErrorText,
+          ),
+          enabled: state is LoginLoading ? false : true,
+          onChanged: (value) {
+            _validateEmail(value);
+          });
+    });
   }
 
   final TextEditingController _pwdController = TextEditingController();
@@ -86,45 +96,64 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
   }
 
   Widget _passwordField() {
-    return TextFormField(
-        validator: (value) => null,
-        controller: _pwdController,
-        obscureText: true,
-        decoration: InputDecoration(
-          icon: Icon(Icons.security),
-          hintText: 'PWD',
-          errorText: _pwdErrorText,
-        ),
-        onChanged: (value) {
-          _validatePwd(value);
-        });
+    return BlocBuilder<LoginBloc, LoginState>(builder: (context, state) {
+      return TextFormField(
+          validator: (value) => null,
+          controller: _pwdController,
+          obscureText: true,
+          decoration: InputDecoration(
+            icon: Icon(Icons.security),
+            hintText: 'PWD',
+            errorText: _pwdErrorText,
+          ),
+          enabled: state is LoginLoading ? false : true,
+          onChanged: (value) {
+            _validatePwd(value);
+          });
+    });
   }
 
   Widget _loginButton() {
-    return Padding(
-      padding: const EdgeInsets.all(25.0),
-      child: ElevatedButton(
-        onPressed: () {},
-        child: Text('LOGIN'),
-      ),
-    );
+    return BlocBuilder<LoginBloc, LoginState>(builder: (context, state) {
+      return Padding(
+        padding: const EdgeInsets.all(25.0),
+        child: ElevatedButton(
+          onPressed: state is LoginLoading
+              ? null
+              : () {
+                  context.read<LoginBloc>().add(LoginSubmitEvent(
+                      _emailController.text, _pwdController.text, _isChecked));
+                },
+          child: Text('LOGIN'),
+        ),
+      );
+    });
   }
 
   bool _isChecked = false;
   Widget _rememberMeCheckBox() {
-    return Padding(
-        padding: const EdgeInsets.all(25.0),
-        child: Row(children: [
-          Text('Remember login?'),
-          Checkbox(
-            value: _isChecked,
-            onChanged: (value) {
-              setState(() {
-                _isChecked = value!;
-              });
-            },
-          ),
-        ]));
+    return BlocBuilder<LoginBloc, LoginState>(builder: (context, state) {
+      return Padding(
+          padding: const EdgeInsets.all(25.0),
+          child: Row(children: [
+            Text('Remember login?'),
+            Checkbox(
+              value: _isChecked,
+              onChanged: state is LoginLoading
+                  ? null
+                  : (value) {
+                      setState(() {
+                        _isChecked = value!;
+                      });
+                    },
+            ),
+          ]));
+    });
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    final snackBar = SnackBar(content: Text(message));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override
