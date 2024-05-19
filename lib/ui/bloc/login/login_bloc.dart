@@ -33,12 +33,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       if (resp.statusCode == 200 || resp.statusCode == null) {
         // login success? --> (save user token?) + login
         if (event.rememberMe) {
-          sp.setString("user", body["token"]);
+          sp.setString('TOKEN', body['token']);
           await sp.reload();
         }
-        emit(LoginSuccess());
+        emit(LoginSuccess(body['token']));
       } else {
-        emit(LoginError(body["message"]));
+        emit(LoginError(body['message']));
       }
     } catch (e) {
       if (e is DioException) {
@@ -52,9 +52,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   void _onAutoLogin(LoginAutoLoginEvent event, Emitter<LoginState> emit) async {
     // try to login with saved credentials
-    bool autologin = sp.containsKey("user");
+    bool autologin = sp.containsKey('TOKEN');
     if (autologin) {
-      emit(LoginSuccess());
+      emit(LoginSuccess(sp.getString('TOKEN').toString()));
     } else {
       // no login saved --> go to login UI
       emit(LoginForm());

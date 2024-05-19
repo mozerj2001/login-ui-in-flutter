@@ -11,9 +11,12 @@ class LoginPageBloc extends StatefulWidget {
 }
 
 class _LoginPageBlocState extends State<LoginPageBloc> {
+  LoginBloc _loginBloc = LoginBloc();
+
   @override
   void initState() {
     super.initState();
+    _loginBloc.add(LoginAutoLoginEvent());
   }
 
   final _key = GlobalKey<FormState>();
@@ -23,7 +26,7 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocProvider(
-        create: (context) => LoginBloc(),
+        create: (context) => _loginBloc,
         child: _loginPrompt(),
       ),
     );
@@ -35,7 +38,7 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
           if (state is LoginError) {
             _showSnackBar(context, state.message);
           } else if (state is LoginSuccess) {
-            _switchToList();
+            _switchToList(state.accessToken);
           }
         },
         child: Form(
@@ -158,8 +161,8 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void _switchToList() {
-    Navigator.of(context).pushReplacementNamed('/list');
+  void _switchToList(accessToken) {
+    Navigator.of(context).pushReplacementNamed('/list', arguments: accessToken);
   }
 
   @override
