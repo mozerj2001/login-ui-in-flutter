@@ -19,6 +19,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     SharedPreferences sp = GetIt.I<SharedPreferences>();
 
     if (event is LoginSubmitEvent) {
+      // LOGIN button pressed
       Dio _dio = GetIt.I<Dio>();
       var data = {"email": event.email, "password": event.password};
 
@@ -27,11 +28,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         Response resp = await _dio.post('/login', data: data);
         final body = resp.data;
 
-        // login success? --> (save user) + login
         if (resp.statusCode == 200) {
+          // login success? --> (save user?) + login
           if (event.rememberMe) {
-            var user = UserItem(event.email, body["token"]);
-            sp.setString("user", user.avatarUrl);
+            // var user = UserItem(event.email, body["token"]);
+            sp.setString("user", body["token"]);
             await sp.reload();
           }
           yield LoginSuccess();

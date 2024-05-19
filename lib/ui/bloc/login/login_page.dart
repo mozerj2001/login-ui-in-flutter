@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_homework/ui/bloc/login/login_bloc.dart';
+import 'package:validators/validators.dart';
 
 class LoginPageBloc extends StatefulWidget {
   const LoginPageBloc({super.key});
@@ -16,11 +17,15 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
   }
 
   final _key = GlobalKey<FormState>();
+  bool _isValid = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _loginPrompt(),
+      body: BlocProvider(
+        create: (context) => LoginBloc(),
+        child: _loginPrompt(),
+      ),
     );
   }
 
@@ -37,26 +42,62 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
         ])));
   }
 
+  final TextEditingController _emailController = TextEditingController();
+  String _emailErrorText = '';
+  void _validateEmail(String value) {
+    setState(() {
+      if (!isEmail(value)) {
+        _emailErrorText = 'Email address invalid!';
+        _isValid = false;
+      } else {
+        _emailErrorText = '';
+        _isValid = true;
+      }
+    });
+  }
+
   Widget _emailField() {
     return TextFormField(
-      validator: (value) => null,
-      obscureText: false,
-      decoration: InputDecoration(
-        icon: Icon(Icons.person),
-        hintText: 'EMAIL',
-      ),
-    );
+        validator: (value) => null,
+        controller: _emailController,
+        obscureText: false,
+        decoration: InputDecoration(
+          icon: Icon(Icons.person),
+          hintText: 'EMAIL',
+          errorText: _emailErrorText,
+        ),
+        onChanged: (value) {
+          _validateEmail(value);
+        });
+  }
+
+  final TextEditingController _pwdController = TextEditingController();
+  String _pwdErrorText = '';
+  void _validatePwd(String value) {
+    setState(() {
+      if (value.length < 6) {
+        _pwdErrorText = 'Password too short!';
+        _isValid = false;
+      } else {
+        _pwdErrorText = '';
+        _isValid = true;
+      }
+    });
   }
 
   Widget _passwordField() {
     return TextFormField(
-      validator: (value) => null,
-      obscureText: true,
-      decoration: InputDecoration(
-        icon: Icon(Icons.security),
-        hintText: 'PWD',
-      ),
-    );
+        validator: (value) => null,
+        controller: _pwdController,
+        obscureText: true,
+        decoration: InputDecoration(
+          icon: Icon(Icons.security),
+          hintText: 'PWD',
+          errorText: _pwdErrorText,
+        ),
+        onChanged: (value) {
+          _validatePwd(value);
+        });
   }
 
   Widget _loginButton() {
