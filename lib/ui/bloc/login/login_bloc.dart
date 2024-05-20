@@ -48,8 +48,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       if (e is DioException) {
         final body = e.response?.data;
         emit(LoginError(body['message']));
-      } else {
-        print("UNKNOWN DIO ERROR");
       }
     }
   }

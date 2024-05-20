@@ -14,40 +14,40 @@ class ListBloc extends Bloc<ListEvent, ListState> {
     on<ListLoadEvent>(_onListLoad);
   }
 
-  SharedPreferences sp = GetIt.I<SharedPreferences>();
-  Dio dio = GetIt.I<Dio>();
-
   void _onListLoad(ListLoadEvent event, Emitter<ListState> emit) async {
-    emit(ListLoading());
-    Response resp;
-    final String accessToken = sp.getString('ACCESS_TOKEN').toString();
+    if (state is ListLoading) {
+    } else {
+      emit(ListLoading());
 
-    try {
-      resp = await dio.get('/users',
-          options: Options(
-              headers: {'Authorization': 'Bearer $accessToken'},
-              receiveTimeout: Duration(seconds: 5),
-              sendTimeout: Duration(seconds: 5)));
+      SharedPreferences sp = GetIt.I<SharedPreferences>();
+      Dio dio = GetIt.I<Dio>();
 
-      final body = resp.data;
+      Response resp;
+      final String accessToken = sp.getString('ACCESS_TOKEN').toString();
 
-      if (resp.statusCode == 200 || resp.statusCode == null) {
-        List<UserItem> userItemList = [];
+      try {
+        dio.options = BaseOptions(
+            headers: {'Authorization': 'Bearer $accessToken'},
+            receiveTimeout: const Duration(seconds: 5),
+            sendTimeout: const Duration(seconds: 5));
+        resp = await dio.get('/users');
 
-        for (final u in body) {
-          userItemList.add(UserItem(u['name'], u['avatarUrl']));
+        final body = resp.data;
+
+        if (resp.statusCode == 200 || resp.statusCode == null) {
+          List<UserItem> userItemList = [];
+
+          for (final u in body) {
+            userItemList.add(UserItem(u['name'], u['avatarUrl']));
+          }
+
+          emit(ListLoaded(userItemList));
+        } else {
+          emit(ListError(body['message']));
         }
-
-        emit(ListLoaded(userItemList));
-      } else {
-        emit(ListError(body['message']));
-      }
-    } catch (e) {
-      if (e is DioException) {
+      } on DioException catch (e) {
         final body = e.response?.data;
         emit(ListError(body['message']));
-      } else {
-        print("UNKNOWN DIO ERROR");
       }
     }
   }
