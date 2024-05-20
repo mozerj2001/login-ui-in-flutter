@@ -47,10 +47,14 @@ class _ListPageBlocState extends State<ListPageBloc> {
       if (state is ListLoading) {
         return Center(child: CircularProgressIndicator());
       } else if (state is ListLoaded) {
-        return Center(
-            child: ListView(
-                scrollDirection: Axis.vertical,
-                children: [for (final u in state.users) _singleUserWidget(u)]));
+        return Container(
+            padding: EdgeInsets.all(16.0),
+            child: Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16.0),
+                child: _userListWidget(state.users),
+              ),
+            ));
       } else {
         return Text(
             "Whoops, something went wrong! Please logout and login again.");
@@ -62,10 +66,28 @@ class _ListPageBlocState extends State<ListPageBloc> {
     });
   }
 
+  Widget _userListWidget(List<UserItem> users) {
+    return Container(
+      color: Color.fromRGBO(148, 183, 212, 1),
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height -
+          0.3 * MediaQuery.of(context).size.height,
+      child: SingleChildScrollView(
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: users.map((user) => _singleUserWidget(user)).toList())),
+    );
+  }
+
   Widget _singleUserWidget(UserItem u) {
     return Row(children: [
-      Image.network(u.avatarUrl),
-      Text(u.name),
+      Image.network(
+        u.avatarUrl,
+        errorBuilder: (context, error, stackTrace) {
+          return Icon(Icons.error);
+        },
+      ),
+      Text(u.name, style: TextStyle(color: Colors.white)),
     ]);
   }
 
