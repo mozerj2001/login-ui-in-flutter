@@ -33,10 +33,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       if (resp.statusCode == 200 || resp.statusCode == null) {
         // login success? --> (save user token?) + login
         if (event.rememberMe) {
-          sp.setString('TOKEN', body['token']);
-          await sp.reload();
+          sp.setString('AUTOLOGIN', body['token']);
         }
-        emit(LoginSuccess(body['token']));
+
+        // pass token to list page
+        sp.setString('ACCESS_TOKEN', body['token']);
+        await sp.reload();
+
+        emit(LoginSuccess());
       } else {
         emit(LoginError(body['message']));
       }
@@ -52,9 +56,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   void _onAutoLogin(LoginAutoLoginEvent event, Emitter<LoginState> emit) async {
     // try to login with saved credentials
-    bool autologin = sp.containsKey('TOKEN');
+    bool autologin = sp.containsKey('AUTOLOGIN');
     if (autologin) {
-      emit(LoginSuccess(sp.getString('TOKEN').toString()));
+      sp.setString('ACCESS_TOKEN', sp.getString('AUTOLOGIN').toString());
+      emit(LoginSuccess());
     } else {
       // no login saved --> go to login UI
       emit(LoginForm());

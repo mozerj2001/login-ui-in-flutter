@@ -9,8 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_homework/network/user_item.dart';
 
 class ListPageBloc extends StatefulWidget {
-  final String accessToken;
-  const ListPageBloc({super.key, required this.accessToken});
+  const ListPageBloc({super.key});
 
   @override
   State<ListPageBloc> createState() => _ListPageBlocState();
@@ -22,7 +21,7 @@ class _ListPageBlocState extends State<ListPageBloc> {
   @override
   void initState() {
     super.initState();
-    _listBloc.add(ListLoadEvent(widget.accessToken));
+    _listBloc.add(ListLoadEvent());
   }
 
   @override
@@ -44,7 +43,7 @@ class _ListPageBlocState extends State<ListPageBloc> {
   }
 
   Widget _listField() {
-    return BlocBuilder<ListBloc, ListState>(builder: (context, state) {
+    return BlocConsumer<ListBloc, ListState>(builder: (context, state) {
       if (state is ListLoading) {
         return Center(child: CircularProgressIndicator());
       } else if (state is ListLoaded) {
@@ -55,6 +54,10 @@ class _ListPageBlocState extends State<ListPageBloc> {
       } else {
         return Text(
             "Whoops, something went wrong! Please logout and login again.");
+      }
+    }, listener: (context, state) {
+      if (state is ListError) {
+        _showSnackBar(context, state.message);
       }
     });
   }
@@ -71,13 +74,15 @@ class _ListPageBlocState extends State<ListPageBloc> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void _switchToLogin() {
+  void _switchToLogin() async {
     SharedPreferences sp = GetIt.I<SharedPreferences>();
 
-    if (sp.containsKey('TOKEN')) {
-      sp.remove('TOKEN');
-      sp.reload();
+    if (sp.containsKey('AUTOLOGIN')) {
+      sp.remove('AUTOLOGIN');
     }
+
+    sp.remove('ACCESS_TOKEN');
+    await sp.reload();
 
     Navigator.of(context).pushReplacementNamed('/');
   }

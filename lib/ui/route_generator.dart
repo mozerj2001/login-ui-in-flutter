@@ -11,13 +11,9 @@ class RouteGenerator {
       case '/':
         return MaterialPageRoute(builder: (_) => LoginPageBloc());
       case '/list':
-        if (args is String) {
-          return MaterialPageRoute(
-            builder: (_) => ListPageBloc(accessToken: args),
-          );
-        } else {
-          return _errorRoute();
-        }
+        return MaterialPageRoute(
+          builder: (_) => ListPageBloc(),
+        );
       default:
         return _errorRoute();
     }

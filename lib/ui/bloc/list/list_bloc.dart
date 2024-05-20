@@ -20,11 +20,14 @@ class ListBloc extends Bloc<ListEvent, ListState> {
   void _onListLoad(ListLoadEvent event, Emitter<ListState> emit) async {
     emit(ListLoading());
     Response resp;
-    final String accessToken = event.accessToken;
+    final String accessToken = sp.getString('ACCESS_TOKEN').toString();
 
     try {
       resp = await dio.get('/users',
-          options: Options(headers: {'Authorization': 'Bearer $accessToken'}));
+          options: Options(
+              headers: {'Authorization': 'Bearer $accessToken'},
+              receiveTimeout: Duration(seconds: 5),
+              sendTimeout: Duration(seconds: 5)));
 
       final body = resp.data;
 

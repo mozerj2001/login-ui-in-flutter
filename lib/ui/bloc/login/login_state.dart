@@ -14,12 +14,8 @@ class LoginLoading extends LoginState {
 }
 
 class LoginSuccess extends LoginState {
-  final String accessToken;
-
-  LoginSuccess(this.accessToken);
-
   @override
-  List<Object?> get props => [accessToken];
+  List<Object?> get props => [];
 }
 
 class LoginError extends LoginState {
