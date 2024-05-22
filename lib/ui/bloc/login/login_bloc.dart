@@ -27,22 +27,19 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(LoginLoading());
     try {
       Response resp = await dio.post('/login', data: data);
-      final body = resp.data;
-      print(resp.toString());
+      final String accessToken = resp.data['token'];
 
       if (resp.statusCode == 200 || resp.statusCode == null) {
         // login success? --> (save user token?) + login
         if (event.rememberMe) {
-          sp.setString('AUTOLOGIN', body['token']);
+          sp.setString('AUTOLOGIN', accessToken);
         }
 
-        // pass token to list page
-        sp.setString('ACCESS_TOKEN', body['token']);
-        await sp.reload();
+        _addAccessTokenToDioHeader(accessToken);
 
         emit(LoginSuccess());
       } else {
-        emit(LoginError(body['message']));
+        emit(LoginError(resp.data['message']));
       }
     } catch (e) {
       if (e is DioException) {
@@ -56,11 +53,20 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     // try to login with saved credentials
     bool autologin = sp.containsKey('AUTOLOGIN');
     if (autologin) {
-      sp.setString('ACCESS_TOKEN', sp.getString('AUTOLOGIN').toString());
+      final String accessToken = sp.getString('AUTOLOGIN').toString();
+      _addAccessTokenToDioHeader(accessToken);
       emit(LoginSuccess());
     } else {
       // no login saved --> go to login UI
       emit(LoginForm());
     }
+  }
+
+  void _addAccessTokenToDioHeader(String accessToken) {
+    Dio dio = GetIt.I<Dio>();
+    dio.options = BaseOptions(
+        headers: {'Authorization': 'Bearer $accessToken'},
+        receiveTimeout: const Duration(seconds: 5),
+        sendTimeout: const Duration(seconds: 5));
   }
 }

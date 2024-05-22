@@ -19,17 +19,11 @@ class ListBloc extends Bloc<ListEvent, ListState> {
     } else {
       emit(ListLoading());
 
-      SharedPreferences sp = GetIt.I<SharedPreferences>();
       Dio dio = GetIt.I<Dio>();
 
       Response resp;
-      final String accessToken = sp.getString('ACCESS_TOKEN').toString();
 
       try {
-        dio.options = BaseOptions(
-            headers: {'Authorization': 'Bearer $accessToken'},
-            receiveTimeout: const Duration(seconds: 5),
-            sendTimeout: const Duration(seconds: 5));
         resp = await dio.get('/users');
 
         final body = resp.data;
