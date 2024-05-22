@@ -22,29 +22,33 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Dio dio = GetIt.I<Dio>();
 
   void _onLoginSubmit(LoginSubmitEvent event, Emitter<LoginState> emit) async {
-    final Map data = {'email': event.email, 'password': event.password};
+    if (state is! LoginLoading) {
+      final Map data = {'email': event.email, 'password': event.password};
 
-    emit(LoginLoading());
-    try {
-      Response resp = await dio.post('/login', data: data);
-      final String accessToken = resp.data['token'];
+      emit(LoginLoading());
+      try {
+        Response resp = await dio.post('/login', data: data);
+        final String accessToken = resp.data['token'];
 
-      if (resp.statusCode == 200 || resp.statusCode == null) {
-        // login success? --> (save user token?) + login
-        if (event.rememberMe) {
-          sp.setString('AUTOLOGIN', accessToken);
+        if (resp.statusCode == 200 || resp.statusCode == null) {
+          // login success? --> (save user token?) + login
+          if (event.rememberMe) {
+            sp.setString('AUTOLOGIN', accessToken);
+          }
+
+          _addAccessTokenToDioHeader(accessToken);
+
+          emit(LoginSuccess());
+          emit(LoginForm());
+        } else {
+          emit(LoginError(resp.data['message']));
         }
-
-        _addAccessTokenToDioHeader(accessToken);
-
-        emit(LoginSuccess());
-      } else {
-        emit(LoginError(resp.data['message']));
-      }
-    } catch (e) {
-      if (e is DioException) {
-        final body = e.response?.data;
-        emit(LoginError(body['message']));
+      } catch (e) {
+        if (e is DioException) {
+          final body = e.response?.data;
+          emit(LoginError(body['message']));
+          emit(LoginForm());
+        }
       }
     }
   }
@@ -56,9 +60,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       final String accessToken = sp.getString('AUTOLOGIN').toString();
       _addAccessTokenToDioHeader(accessToken);
       emit(LoginSuccess());
-    } else {
-      // no login saved --> go to login UI
-      emit(LoginForm());
     }
   }
 
