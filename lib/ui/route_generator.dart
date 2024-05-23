@@ -9,10 +9,10 @@ class RouteGenerator {
 
     switch (settings.name) {
       case '/':
-        return MaterialPageRoute(builder: (_) => LoginPageBloc());
+        return MaterialPageRoute(builder: (_) => const LoginPageBloc());
       case '/list':
         return MaterialPageRoute(
-          builder: (_) => ListPageBloc(),
+          builder: (_) => const ListPageBloc(),
         );
       default:
         return _errorRoute();
@@ -23,9 +23,9 @@ class RouteGenerator {
     return MaterialPageRoute(builder: (_) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Error'),
+          title: const Text('Error'),
         ),
-        body: Center(
+        body: const Center(
           child: Text('ERROR'),
         ),
       );

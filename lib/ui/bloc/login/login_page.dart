@@ -11,7 +11,7 @@ class LoginPageBloc extends StatefulWidget {
 }
 
 class _LoginPageBlocState extends State<LoginPageBloc> {
-  LoginBloc _loginBloc = LoginBloc();
+  final LoginBloc _loginBloc = LoginBloc();
 
   @override
   void initState() {
@@ -70,12 +70,11 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
 
   Widget _emailField() {
     return BlocBuilder<LoginBloc, LoginState>(builder: (context, state) {
-      return TextFormField(
-          validator: (value) => null,
+      return TextField(
           controller: _emailController,
           obscureText: false,
           decoration: InputDecoration(
-            icon: Icon(Icons.person),
+            icon: const Icon(Icons.person),
             hintText: 'EMAIL',
             errorText: _emailErrorText,
           ),
@@ -102,12 +101,11 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
 
   Widget _passwordField() {
     return BlocBuilder<LoginBloc, LoginState>(builder: (context, state) {
-      return TextFormField(
-          validator: (value) => null,
+      return TextField(
           controller: _pwdController,
           obscureText: true,
           decoration: InputDecoration(
-            icon: Icon(Icons.security),
+            icon: const Icon(Icons.security),
             hintText: 'PWD',
             errorText: _pwdErrorText,
           ),
@@ -129,7 +127,7 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
                   context.read<LoginBloc>().add(LoginSubmitEvent(
                       _emailController.text, _pwdController.text, _isChecked));
                 },
-          child: Text('LOGIN'),
+          child: const Text('LOGIN'),
         ),
       );
     });
@@ -141,7 +139,7 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
       return Padding(
           padding: const EdgeInsets.all(25.0),
           child: Row(children: [
-            Text('Remember login?'),
+            const Text('Remember login?'),
             Checkbox(
               value: _isChecked,
               onChanged: state is LoginLoading

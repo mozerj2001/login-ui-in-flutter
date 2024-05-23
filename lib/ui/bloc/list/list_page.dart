@@ -16,7 +16,7 @@ class ListPageBloc extends StatefulWidget {
 }
 
 class _ListPageBlocState extends State<ListPageBloc> {
-  ListBloc _listBloc = ListBloc();
+  final ListBloc _listBloc = ListBloc();
 
   @override
   void initState() {
@@ -32,7 +32,7 @@ class _ListPageBlocState extends State<ListPageBloc> {
       child: Column(children: [
         AppBar(
           leading: IconButton(
-              icon: Icon(Icons.logout),
+              icon: const Icon(Icons.logout),
               onPressed: () {
                 _switchToLogin();
               }),
@@ -44,11 +44,11 @@ class _ListPageBlocState extends State<ListPageBloc> {
 
   Widget _listField() {
     return BlocConsumer<ListBloc, ListState>(builder: (context, state) {
-      if (state is ListLoading) {
-        return Center(child: CircularProgressIndicator());
+      if (state is! ListLoaded) {
+        return const Center(child: CircularProgressIndicator());
       } else if (state is ListLoaded) {
         return Container(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16.0),
@@ -56,7 +56,7 @@ class _ListPageBlocState extends State<ListPageBloc> {
               ),
             ));
       } else {
-        return Text(
+        return const Text(
             "Whoops, something went wrong! Please logout and login again.");
       }
     }, listener: (context, state) {
@@ -68,7 +68,7 @@ class _ListPageBlocState extends State<ListPageBloc> {
 
   Widget _userListWidget(List<UserItem> users) {
     return Container(
-      color: Color.fromRGBO(148, 183, 212, 1),
+      color: const Color.fromRGBO(148, 183, 212, 1),
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height -
           0.3 * MediaQuery.of(context).size.height,
@@ -84,10 +84,10 @@ class _ListPageBlocState extends State<ListPageBloc> {
       Image.network(
         u.avatarUrl,
         errorBuilder: (context, error, stackTrace) {
-          return Icon(Icons.error);
+          return const Icon(Icons.error);
         },
       ),
-      Text(u.name, style: TextStyle(color: Colors.white)),
+      Text(u.name, style: const TextStyle(color: Colors.white)),
     ]);
   }
 
