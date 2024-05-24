@@ -16,20 +16,16 @@ class ListPageBloc extends StatefulWidget {
 }
 
 class _ListPageBlocState extends State<ListPageBloc> {
-  final ListBloc _listBloc = ListBloc();
-
   @override
   void initState() {
     super.initState();
-    _listBloc.add(ListLoadEvent());
+    context.read<ListBloc>().add(ListLoadEvent());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: BlocProvider(
-      create: (context) => _listBloc,
-      child: Column(children: [
+      body: Column(children: [
         AppBar(
           leading: IconButton(
               icon: const Icon(Icons.logout),
@@ -39,14 +35,14 @@ class _ListPageBlocState extends State<ListPageBloc> {
         ),
         _listField(),
       ]),
-    ));
+    );
   }
 
   Widget _listField() {
     return BlocConsumer<ListBloc, ListState>(builder: (context, state) {
       if (state is! ListLoaded) {
         return const Center(child: CircularProgressIndicator());
-      } else if (state is ListLoaded) {
+      } else {
         return Container(
             padding: const EdgeInsets.all(16.0),
             child: Center(
@@ -55,9 +51,6 @@ class _ListPageBlocState extends State<ListPageBloc> {
                 child: _userListWidget(state.users),
               ),
             ));
-      } else {
-        return const Text(
-            "Whoops, something went wrong! Please logout and login again.");
       }
     }, listener: (context, state) {
       if (state is ListError) {

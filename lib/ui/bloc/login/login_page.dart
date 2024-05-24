@@ -11,12 +11,10 @@ class LoginPageBloc extends StatefulWidget {
 }
 
 class _LoginPageBlocState extends State<LoginPageBloc> {
-  final LoginBloc _loginBloc = LoginBloc();
-
   @override
   void initState() {
     super.initState();
-    _loginBloc.add(LoginAutoLoginEvent());
+    context.read<LoginBloc>().add(LoginAutoLoginEvent());
   }
 
   final _key = GlobalKey<FormState>();
@@ -25,10 +23,7 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocProvider(
-        create: (context) => _loginBloc,
-        child: _loginPrompt(),
-      ),
+      body: _loginPrompt(),
     );
   }
 
